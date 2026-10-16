@@ -1,0 +1,23 @@
+unit: map-server
+side_effects:
+  - source_loc: hdmap/ad_map/ad_map_server_py/ad_map_server_py/ad_map_server.py:88
+    effect: initializes the configured AD Map resource and coordinate transform
+    must_preserve: true
+branches:
+  - source_loc: hdmap/ad_map/ad_map_server_py/ad_map_server_py/ad_map_server.py:111
+    condition: no map match is found
+    behavior: returns None for lane lookup
+    must_preserve: true
+error_paths:
+  - source_loc: hdmap/ad_map/ad_map_server_py/ad_map_server_py/ad_map_server.py:95
+    trigger: invalid point dimensionality
+    outcome: returns None
+    contract: callers must handle missing map points
+    must_preserve: true
+concurrency:
+  model: sync
+  tx_boundary:
+    source_loc: hdmap/ad_map/ad_map_server_py/ad_map_server_py/ad_map_server.py:88
+    scope: map service call
+    isolation: none
+    must_preserve: true

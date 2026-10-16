@@ -1,0 +1,13 @@
+unit: pid-controller
+bindings:
+  - type: listener
+    name: PlanningResult and VehicleModelReset subscriptions
+    source_loc: control/pid_controller/pid_controller/control.py:79
+    target: ControllerNode callbacks
+    must_appear_in_target: true
+  - type: di-registration
+    name: Control service client
+    source_loc: control/pid_controller/pid_controller/control.py:103
+    target: Control
+    must_appear_in_target: true
+runtime_config: []

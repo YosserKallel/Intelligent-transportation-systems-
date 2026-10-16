@@ -1,0 +1,7 @@
+unit: trajectory-planner
+commit: false
+candidate_splits:
+  - id: planning/trajectory_planner/trajectory_planner/trajectory_generator.py:160-230
+    drivers: [concern_split]
+    rationale: obstacle reaction and lane-change decision logic are interleaved with plan publication and speed-profile generation.
+    source_slice: {file: planning/trajectory_planner/trajectory_planner/trajectory_generator.py, lines: [160, 230]}

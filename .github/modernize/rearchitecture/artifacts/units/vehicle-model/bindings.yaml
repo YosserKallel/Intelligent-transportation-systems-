@@ -1,0 +1,13 @@
+unit: vehicle-model
+bindings:
+  - type: listener
+    name: SimuLinkInput subscription
+    source_loc: vehicle_model/simulink/simulink_bridge/src/simulink_bridge.cpp:55
+    target: SimuLinkBridgeNode input callback
+    must_appear_in_target: true
+  - type: route-declaration
+    name: Simulink output publisher
+    source_loc: vehicle_model/simulink/simulink_bridge/src/simulink_bridge.cpp:52
+    target: SimuLinkOutput
+    must_appear_in_target: true
+runtime_config: []

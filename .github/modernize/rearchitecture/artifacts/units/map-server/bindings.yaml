@@ -1,0 +1,14 @@
+unit: map-server
+bindings:
+  - type: di-registration
+    name: ad_map_access Python bindings
+    source_loc: hdmap/ad_map/ad_map_server_py/ad_map_server_py/ad_map_server.py:10
+    target: MapServer
+    must_appear_in_target: true
+runtime_config:
+  - key: map_dir
+    source_loc: hdmap/ad_map/ad_map_server_py/ad_map_server_py/ad_map_server.py:82
+    source: code
+    default_value: jinan_two_lanes_config.txt
+    must_appear_in_target: true
+    notes: Selects the OpenDRIVE/AD Map configuration.

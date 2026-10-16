@@ -1,0 +1,23 @@
+unit: vehicle-model
+side_effects:
+  - source_loc: vehicle_model/simulink/simulink_bridge/src/simulink_bridge.cpp:80
+    effect: advances generated vehicle model and publishes its output fields
+    must_preserve: true
+branches:
+  - source_loc: vehicle_model/simulink/simulink_bridge/src/simulink_bridge.cpp:91
+    condition: brake input is positive
+    behavior: selects braking control mode
+    must_preserve: true
+error_paths:
+  - source_loc: vehicle_model/simulink/simulink_bridge/src/simulink_bridge.cpp:19
+    trigger: model step overrun
+    outcome: sets generated model error status and skips the step
+    contract: no duplicate/overlapping model step
+    must_preserve: true
+concurrency:
+  model: sync
+  tx_boundary:
+    source_loc: vehicle_model/simulink/simulink_bridge/src/simulink_bridge.cpp:80
+    scope: input mapping, model step, output mapping, publication
+    isolation: none
+    must_preserve: true

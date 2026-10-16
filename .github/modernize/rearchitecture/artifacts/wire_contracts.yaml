@@ -1,0 +1,81 @@
+contracts:
+  - name: simulation heartbeat
+    unit: scenario-runner
+    type: sdk
+    stability: frozen
+    source_loc: scenarios/scenario_runner/scenario_runner/scenario_jinan.py:42
+    contract:
+      method: publish SimTick
+      path: SimTick
+      request: frame header with incrementing frame_id
+      response: none
+      error: heartbeat timer emits a replacement tick after timeout
+      auth: none
+    target_contract:
+      method: SimTick topic publisher
+      notes: preserve monotonically increasing frame IDs and timeout behavior
+    semantic_divergence: []
+  - name: traffic prediction
+    unit: traffic-sim
+    type: sdk
+    stability: frozen
+    source_loc: scenarios/traffic_sim/traffic_sim/traffic_sim_node.py:67
+    contract:
+      method: publish PredictionResult
+      path: PredictionResult
+      request: SimTick plus TrafficListMsg
+      response: prediction_length future frames of obstacles
+      error: missing traffic trace is an assertion failure
+      auth: none
+    target_contract:
+      method: PredictionResult topic publisher
+      notes: preserve frame IDs, obstacle positions, and speed estimation
+    semantic_divergence: []
+  - name: lane-change plan
+    unit: lane-change-decision
+    type: sdk
+    stability: frozen
+    source_loc: planning/trajectory_planner/trajectory_planner/greedy_dm.py:33
+    contract:
+      method: publish LaneChangeMsgs
+      path: LaneChangeMsgs
+      request: PredictionResult and ego VehicleModelOutput
+      response: lanechangeop -1/0/1 and done
+      error: defaults to keep-lane when ego state is not ready
+      auth: none
+    target_contract:
+      method: LaneChangeMsgs topic publisher
+      notes: preserve lane operation encoding and episode completion
+    semantic_divergence: []
+  - name: trajectory output
+    unit: trajectory-planner
+    type: sdk
+    stability: frozen
+    source_loc: planning/trajectory_planner/trajectory_planner/trajectory_generator.py:129
+    contract:
+      method: publish PlanningResult
+      path: planning_result
+      request: lane change, predicted obstacles, and vehicle state
+      response: ordered waypoints with speed, planner_status, emergency_stop
+      error: empty waypoint buffer returns without publishing a plan
+      auth: none
+    target_contract:
+      method: PlanningResult topic publisher
+      notes: preserve waypoint ordering and emergency-stop semantics
+    semantic_divergence: []
+  - name: control-to-vehicle
+    unit: pid-controller
+    type: sdk
+    stability: frozen
+    source_loc: control/pid_controller/pid_controller/control.py:103
+    contract:
+      method: Control service
+      path: Control
+      request: VehicleModelInput
+      response: VehicleModelOutput
+      error: waits for service availability; publishes VehicleModelOutput
+      auth: none
+    target_contract:
+      method: Control service with VehicleModelInput/VehicleModelOutput
+      notes: preserve control frame IDs and output metrics
+    semantic_divergence: []

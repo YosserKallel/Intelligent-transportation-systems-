@@ -1,0 +1,26 @@
+unit: carla-bridge
+side_effects:
+  - source_loc: visualization/carla/carla_bridge/carla_bridge/carla_bridge.py:89
+    effect: spawns and updates CARLA traffic actors from simulation state
+    must_preserve: true
+  - source_loc: visualization/carla/carla_bridge/carla_bridge/carla_bridge.py:148
+    effect: renders actor and ego-vehicle state through CARLA/Pygame
+    must_preserve: true
+branches:
+  - source_loc: visualization/carla/carla_bridge/carla_bridge/carla_bridge.py:86
+    condition: an agent is not yet tracked
+    behavior: spawns a four-wheel CARLA actor and associates its ID
+    must_preserve: true
+error_paths:
+  - source_loc: visualization/carla/carla_bridge/carla_bridge/carla_bridge.py:108
+    trigger: actor spawn failure
+    outcome: logs that the actor cannot be spawned
+    contract: visualization may continue without that actor
+    must_preserve: true
+concurrency:
+  model: event-loop
+  tx_boundary:
+    source_loc: visualization/carla/carla_bridge/carla_bridge/carla_bridge.py:222
+    scope: simulator callbacks and actor display updates
+    isolation: none
+    must_preserve: true

@@ -1,0 +1,8 @@
+unit: lane-change-decision
+bindings:
+  - type: listener
+    name: PredictionResult and VehicleModelOutput subscriptions
+    source_loc: planning/trajectory_planner/trajectory_planner/greedy_dm.py:51
+    target: Greedy_Lane_Change callbacks
+    must_appear_in_target: true
+runtime_config: []

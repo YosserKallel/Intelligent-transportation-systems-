@@ -1,0 +1,14 @@
+unit: scenario-runner
+bindings:
+  - type: route-declaration
+    name: run_jinan launch entry point
+    source_loc: scenarios/scenario_runner/launch/run_jinan.py:20
+    target: scenario_runner node
+    must_appear_in_target: true
+runtime_config:
+  - key: scenario_settings
+    source_loc: scenarios/scenario_runner/config/settings.yaml:2
+    source: properties-file
+    default_value: dummy=True
+    must_appear_in_target: true
+    notes: ROS parameters for the scenario runner.

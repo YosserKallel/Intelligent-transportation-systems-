@@ -1,0 +1,18 @@
+unit: scenario-runner
+side_effects:
+  - source_loc: scenarios/scenario_runner/scenario_runner/scenario_jinan.py:48
+    effect: publishes the next simulation heartbeat after a vehicle output
+    must_preserve: true
+branches:
+  - source_loc: scenarios/scenario_runner/scenario_runner/scenario_jinan.py:69
+    condition: heartbeat timeout
+    behavior: logs timeout and emits a replacement tick
+    must_preserve: true
+error_paths: []
+concurrency:
+  model: event-loop
+  tx_boundary:
+    source_loc: scenarios/scenario_runner/scenario_runner/scenario_jinan.py:31
+    scope: ROS callbacks and timer callbacks
+    isolation: none
+    must_preserve: true

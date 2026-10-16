@@ -1,0 +1,18 @@
+unit: lane-change-decision
+side_effects:
+  - source_loc: planning/trajectory_planner/trajectory_planner/greedy_dm.py:33
+    effect: publishes the selected lane-change operation
+    must_preserve: true
+branches:
+  - source_loc: planning/trajectory_planner/trajectory_planner/greedy_dm.py:129
+    condition: front vehicle hazard detected
+    behavior: selects a safe left/right lane if available, otherwise keeps lane
+    must_preserve: true
+error_paths: []
+concurrency:
+  model: event-loop
+  tx_boundary:
+    source_loc: planning/trajectory_planner/trajectory_planner/greedy_dm.py:51
+    scope: one lane decision per prediction callback
+    isolation: none
+    must_preserve: true

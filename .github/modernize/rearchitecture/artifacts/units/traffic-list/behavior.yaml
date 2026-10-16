@@ -1,0 +1,14 @@
+unit: traffic-list
+side_effects:
+  - source_loc: scenarios/traffic_sim/traffic_sim/traffic_list_node.py:72
+    effect: publishes the active traffic-agent selection
+    must_preserve: true
+branches: []
+error_paths: []
+concurrency:
+  model: event-loop
+  tx_boundary:
+    source_loc: scenarios/traffic_sim/traffic_sim/traffic_list_node.py:74
+    scope: tick-driven traffic list update
+    isolation: none
+    must_preserve: true

@@ -1,0 +1,8 @@
+unit: traffic-list
+bindings:
+  - type: listener
+    name: SimTick and VehicleModelOutput subscriptions
+    source_loc: scenarios/traffic_sim/traffic_sim/traffic_list_node.py:74
+    target: traffic list callbacks
+    must_appear_in_target: true
+runtime_config: []

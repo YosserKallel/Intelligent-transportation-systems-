@@ -1,0 +1,37 @@
+modules:
+  - name: fead-interfaces
+    kind: dto
+    source_loc: interface:1
+    used_by_units: [scenario-runner, traffic-sim, traffic-list, lane-change-decision, trajectory-planner, pid-controller, vehicle-model, carla-bridge]
+    fields:
+      - name: SimTick
+        type: fead_interfaces/msg/SimTick
+      - name: PredictionResult
+        type: fead_interfaces/msg/PredictionResult
+      - name: LaneChangeMsgs
+        type: fead_interfaces/msg/LaneChangeMsgs
+      - name: PlanningResult
+        type: fead_interfaces/msg/PlanningResult
+      - name: VehicleModelInput
+        type: fead_interfaces/msg/VehicleModelInput
+      - name: VehicleModelOutput
+        type: fead_interfaces/msg/VehicleModelOutput
+    god_class: false
+    split_candidate: false
+    migration_strategy: copy
+    notes: ROS wire definitions are the shared inter-process contract.
+  - name: coordinate-transform
+    kind: utility
+    source_loc: hdmap/ad_map/ad_map_server_py/ad_map_server_py/ad_map_server.py:20
+    used_by_units: [map-server, lane-change-decision, trajectory-planner, pid-controller]
+    fields:
+      - name: trucksim_to_map
+        type: method
+      - name: map_to_trucksim
+        type: method
+      - name: map_to_carla
+        type: method
+    god_class: false
+    split_candidate: false
+    migration_strategy: wrap
+    notes: Shared coordinate conventions connect map, simulator, and control frames.

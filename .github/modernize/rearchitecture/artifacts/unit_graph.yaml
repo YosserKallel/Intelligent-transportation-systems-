@@ -1,0 +1,140 @@
+units:
+  - name: scenario-runner
+    trigger: job
+    trigger_detail: ROS 2 node run_jinan or run_jinan_trainer
+    source_anchors:
+      - path: scenarios/scenario_runner/launch/run_jinan.py
+      - path: scenarios/scenario_runner/scenario_runner/scenario_jinan.py
+      - path: scenarios/scenario_runner/scenario_runner/scenario_jinan_reset.py
+    exported_signature:
+      - method: publishes SimTick and VehicleModelReset
+        source_loc: scenarios/scenario_runner/scenario_runner/scenario_jinan.py:34
+        stability: frozen
+    dynamic_entrypoints:
+      - target: scenario_runner.scenario_jinan:main
+        mechanism: convention
+        source_loc: scenarios/scenario_runner/setup.py:30
+    depends_on:
+      - unit: traffic-sim
+        via: SimTick
+      - unit: vehicle-model
+        via: VehicleModelOutput and VehicleModelReset
+  - name: traffic-sim
+    trigger: handler
+    trigger_detail: SimTick topic
+    source_anchors:
+      - path: scenarios/traffic_sim/traffic_sim/traffic_sim_node.py
+    exported_signature:
+      - method: publishes PredictionResult
+        source_loc: scenarios/traffic_sim/traffic_sim/traffic_sim_node.py:67
+        stability: frozen
+    dynamic_entrypoints:
+      - target: traffic_sim.traffic_sim_node:main
+        mechanism: convention
+        source_loc: scenarios/traffic_sim/setup.py:28
+    depends_on: []
+  - name: traffic-list
+    trigger: handler
+    trigger_detail: SimTick and VehicleModelOutput topics
+    source_anchors:
+      - path: scenarios/traffic_sim/traffic_sim/traffic_list_node.py
+    exported_signature:
+      - method: publishes TrafficListMsg
+        source_loc: scenarios/traffic_sim/traffic_sim/traffic_list_node.py:72
+        stability: must_preserve
+    dynamic_entrypoints: []
+    depends_on:
+      - unit: traffic-sim
+        via: TrafficListMsg
+  - name: map-server
+    trigger: api
+    trigger_detail: ROS map services and AD Map access
+    source_anchors:
+      - path: hdmap/ad_map/ad_map_server_py/ad_map_server_py/ad_map_server.py
+      - path: hdmap/msg_pub
+    exported_signature:
+      - method: lane, routing, elevation, and projection services
+        source_loc: hdmap/msg_pub/CMakeLists.txt:55
+        stability: frozen
+    dynamic_entrypoints: []
+    depends_on: []
+  - name: lane-change-decision
+    trigger: handler
+    trigger_detail: PredictionResult and VehicleModelOutput topics
+    source_anchors:
+      - path: planning/trajectory_planner/trajectory_planner/greedy_dm.py
+      - path: planning/rl_decision_making/rl_decision_making/traffic_process_test.py
+    exported_signature:
+      - method: publishes LaneChangeMsgs
+        source_loc: planning/trajectory_planner/trajectory_planner/greedy_dm.py:33
+        stability: frozen
+    dynamic_entrypoints: []
+    depends_on:
+      - unit: map-server
+        via: lane-neighbor queries
+      - unit: traffic-sim
+        via: PredictionResult
+  - name: trajectory-planner
+    trigger: handler
+    trigger_detail: PredictionResult, LaneChangeMsgs, and VehicleModelOutput topics
+    source_anchors:
+      - path: planning/trajectory_planner/trajectory_planner/trajectory_generator.py
+      - path: planning/trajectory_planner/trajectory_planner/HDMap.py
+    exported_signature:
+      - method: publishes PlanningResult
+        source_loc: planning/trajectory_planner/trajectory_planner/trajectory_generator.py:129
+        stability: frozen
+    dynamic_entrypoints: []
+    depends_on:
+      - unit: map-server
+        via: lane/routing/elevation queries
+      - unit: lane-change-decision
+        via: LaneChangeMsgs
+      - unit: traffic-sim
+        via: PredictionResult
+  - name: pid-controller
+    trigger: handler
+    trigger_detail: PlanningResult topic and Control service
+    source_anchors:
+      - path: control/pid_controller/pid_controller/control.py
+      - path: control/pid_controller/pid_controller/pid_controller.py
+    exported_signature:
+      - method: calls Control and publishes VehicleModelOutput
+        source_loc: control/pid_controller/pid_controller/control.py:79
+        stability: frozen
+    dynamic_entrypoints: []
+    depends_on:
+      - unit: trajectory-planner
+        via: PlanningResult
+      - unit: vehicle-model
+        via: Control service
+  - name: vehicle-model
+    trigger: api
+    trigger_detail: VehicleModelInput topic/service request
+    source_anchors:
+      - path: vehicle_model/simulink/simulink_bridge/src/simulink_bridge.cpp
+      - path: vehicle_model/cnhtc_pre_a
+    exported_signature:
+      - method: VehicleModelInput -> VehicleModelOutput
+        source_loc: vehicle_model/simulink/simulink_bridge/src/simulink_bridge.cpp:80
+        stability: frozen
+    dynamic_entrypoints: []
+    depends_on: []
+  - name: carla-bridge
+    trigger: api
+    trigger_detail: CARLA server connection
+    source_anchors:
+      - path: visualization/carla/carla_bridge/carla_bridge/carla_bridge.py
+      - path: visualization/carla/carla_bridge/carla_bridge/carla_wrapper.py
+    exported_signature: []
+    dynamic_entrypoints:
+      - target: carla_bridge.carla_bridge:main
+        mechanism: convention
+        source_loc: visualization/carla/carla_bridge/setup.py:29
+    depends_on:
+      - unit: traffic-sim
+        via: PredictionResult
+      - unit: trajectory-planner
+        via: PlanningResult
+      - unit: vehicle-model
+        via: VehicleModelOutput/Input

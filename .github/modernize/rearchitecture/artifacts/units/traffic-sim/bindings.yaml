@@ -1,0 +1,13 @@
+unit: traffic-sim
+bindings:
+  - type: listener
+    name: SimTick subscription
+    source_loc: scenarios/traffic_sim/traffic_sim/traffic_sim_node.py:69
+    target: TrafficSim.sim_tick_callback
+    must_appear_in_target: true
+  - type: listener
+    name: TrafficListMsg subscription
+    source_loc: scenarios/traffic_sim/traffic_sim/traffic_sim_node.py:71
+    target: TrafficSim.traffic_list_callback
+    must_appear_in_target: true
+runtime_config: []

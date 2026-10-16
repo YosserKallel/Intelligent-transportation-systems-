@@ -1,0 +1,25 @@
+unit: trajectory-planner
+side_effects:
+  - source_loc: planning/trajectory_planner/trajectory_planner/trajectory_generator.py:129
+    effect: publishes a timed waypoint plan
+    must_preserve: true
+  - source_loc: planning/trajectory_planner/trajectory_planner/trajectory_generator.py:146
+    effect: writes experiment metrics on vehicle reset
+    must_preserve: true
+branches:
+  - source_loc: planning/trajectory_planner/trajectory_planner/trajectory_generator.py:178
+    condition: collision risk within configured distance
+    behavior: enables emergency stop and records a brake event
+    must_preserve: true
+  - source_loc: planning/trajectory_planner/trajectory_planner/trajectory_generator.py:224
+    condition: no waypoint buffer remains
+    behavior: returns without publishing a plan
+    must_preserve: true
+error_paths: []
+concurrency:
+  model: event-loop
+  tx_boundary:
+    source_loc: planning/trajectory_planner/trajectory_planner/trajectory_generator.py:109
+    scope: perception, lane-change, reset, and vehicle-state callbacks
+    isolation: none
+    must_preserve: true

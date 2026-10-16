@@ -1,0 +1,21 @@
+unit: pid-controller
+side_effects:
+  - source_loc: control/pid_controller/pid_controller/control.py:86
+    effect: publishes vehicle model output and debug output
+    must_preserve: true
+  - source_loc: control/pid_controller/pid_controller/control.py:103
+    effect: calls the Control service for vehicle actuation
+    must_preserve: true
+branches:
+  - source_loc: control/pid_controller/pid_controller/control.py:133
+    condition: waypoint is behind the vehicle
+    behavior: advances through the waypoint buffer to find a forward target
+    must_preserve: true
+error_paths: []
+concurrency:
+  model: event-loop
+  tx_boundary:
+    source_loc: control/pid_controller/pid_controller/control.py:62
+    scope: control timestep and model service request
+    isolation: none
+    must_preserve: true

@@ -1,0 +1,13 @@
+unit: trajectory-planner
+bindings:
+  - type: listener
+    name: PredictionResult, LaneChangeMsgs, VehicleModelReset, VehicleModelOutput subscriptions
+    source_loc: planning/trajectory_planner/trajectory_planner/trajectory_generator.py:103
+    target: TrajectoryPlanner callbacks
+    must_appear_in_target: true
+  - type: route-declaration
+    name: run_trajectory_planner
+    source_loc: planning/trajectory_planner/setup.py:31
+    target: trajectory generator main
+    must_appear_in_target: true
+runtime_config: []

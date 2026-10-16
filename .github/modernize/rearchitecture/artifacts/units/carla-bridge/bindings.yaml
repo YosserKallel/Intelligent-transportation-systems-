@@ -1,0 +1,19 @@
+unit: carla-bridge
+bindings:
+  - type: di-registration
+    name: CARLA host/port and synchronous-mode parameters
+    source_loc: visualization/carla/carla_bridge/config/settings.yaml:2
+    target: CarlaBridgeNode
+    must_appear_in_target: true
+  - type: route-declaration
+    name: run_carla_bridge
+    source_loc: visualization/carla/carla_bridge/setup.py:29
+    target: CarlaBridgeNode main
+    must_appear_in_target: true
+runtime_config:
+  - key: carla_settings.host/port/synchronous_mode
+    source_loc: visualization/carla/carla_bridge/config/settings.yaml:4
+    source: properties-file
+    default_value: 127.0.0.1/2000/True
+    must_appear_in_target: true
+    notes: Controls CARLA connection and simulation synchronization.

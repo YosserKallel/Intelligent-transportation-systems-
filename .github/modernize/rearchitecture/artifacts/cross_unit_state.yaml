@@ -1,0 +1,29 @@
+flows:
+  - name: simulation-frame-id
+    medium: http-header
+    key: std_msgs/Header.frame_id
+    writer:
+      unit: scenario-runner
+      source_loc: scenarios/scenario_runner/scenario_runner/scenario_jinan.py:48
+    reader:
+      unit: traffic-sim
+      source_loc: scenarios/traffic_sim/traffic_sim/traffic_sim_node.py:89
+    pairing: matched
+    must_preserve: true
+    must_confirm: null
+    verification_hint: verify prediction and vehicle output frame IDs advance one tick at a time
+    notes: The same frame ID is used to correlate simulation input and output.
+  - name: vehicle-ready-state
+    medium: static
+    key: vehicle_state.ready
+    writer:
+      unit: trajectory-planner
+      source_loc: planning/trajectory_planner/trajectory_planner/trajectory_generator.py:148
+    reader:
+      unit: lane-change-decision
+      source_loc: planning/trajectory_planner/trajectory_planner/greedy_dm.py:77
+    pairing: unmatched-reader
+    must_preserve: true
+    must_confirm: runtime
+    verification_hint: confirm lane-change decisions are suppressed until a valid vehicle output is received
+    notes: The implementations keep separate local ready flags; the behavior is logically coupled through VehicleModelOutput.

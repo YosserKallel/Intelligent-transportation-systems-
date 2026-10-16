@@ -1,0 +1,23 @@
+unit: traffic-sim
+side_effects:
+  - source_loc: scenarios/traffic_sim/traffic_sim/traffic_sim_node.py:84
+    effect: publishes a prediction horizon for every requested tick
+    must_preserve: true
+branches:
+  - source_loc: scenarios/traffic_sim/traffic_sim/traffic_sim_node.py:104
+    condition: traffic frame is early or has insufficient history
+    behavior: computes speed from available history or returns zero
+    must_preserve: true
+error_paths:
+  - source_loc: scenarios/traffic_sim/traffic_sim/traffic_sim_node.py:137
+    trigger: missing replay info or agent file
+    outcome: assertion failure during startup
+    contract: startup must fail rather than silently run without traffic data
+    must_preserve: true
+concurrency:
+  model: event-loop
+  tx_boundary:
+    source_loc: scenarios/traffic_sim/traffic_sim/traffic_sim_node.py:69
+    scope: one prediction publication per SimTick callback
+    isolation: none
+    must_preserve: true

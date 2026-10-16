@@ -1,0 +1,7 @@
+unit: carla-bridge
+commit: false
+candidate_splits:
+  - id: visualization/carla/carla_bridge/carla_bridge/carla_bridge.py:1-220
+    drivers: [concern_split]
+    rationale: CARLA transport, traffic actor lifecycle, and human-facing rendering are separate concerns in one bridge module.
+    source_slice: {file: visualization/carla/carla_bridge/carla_bridge/carla_bridge.py, lines: [1, 220]}
